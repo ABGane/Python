@@ -1,0 +1,143 @@
+# K Means Process
+
+"""
+A graphical demonstration of the K means clustering technique for two dimensional datasets. The The maximum number of clusters that may be defined is 8 to ensure easy visualisation of different centroids.
+
+Created on Sat Jul 29 13:00:18 2017
+@author: angus gane
+"""
+
+# Import modules
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+# Define functions
+
+def square(a):
+    return a**2
+
+def cdistance(Xs, Ys, Cent_df):
+    # Xs and Ys are lists
+    # Cent_df is a dataframe
+    CentroidX = Cent_df.loc[0]
+    CentroidY = Cent_df.loc[1]
+
+    # Calculate delta X
+    
+    deltaX_list = []
+    for i in range(0, k):
+        deltaX_list.append(Xs - CentroidX[i])
+    
+    # Calculate delta Y
+    
+    deltaY_list = []
+    
+    for i in range(0, k):
+        deltaY_list.append(Ys - CentroidY[i])
+        
+    # Square deltaX and delta Y values, add resulting matrices and root
+    
+    deltaX = pd.DataFrame(deltaX_list)
+    deltaY = pd.DataFrame(deltaY_list)
+    
+    dx_sq = deltaX.apply(square)
+    dy_sq = deltaY.apply(square)
+    
+    xysum = dx_sq + dy_sq
+    
+    xysum_root = np.sqrt(xysum)
+    
+    # Determine which centroid each point is closest to
+    
+    dist = xysum_root.idxmin()
+    
+    #Colour points according to closest centroid
+        
+    lengthX = len(Xs)
+    
+    for i in range(0, lengthX):
+        j = dist[i]
+        plt.plot(Xs[i], Ys[i], dcsa[j])
+        
+    carray = np.vstack((Xs, Ys, dist))
+    cdf = pd.DataFrame(carray, index = ["Xs", "Ys", "Centroid_ID"])
+    
+    ncX = []
+    ncY = []
+    
+    for i in range(0, k):
+        selected = cdf.loc[:, cdf.loc['Centroid_ID'] == i]
+        Xmean = selected.loc["Xs"].mean()
+        Ymean = selected.loc["Ys"].mean()
+        if selected.empty == True:
+            ncentroidX = np.random.uniform(0, xmax)
+            ncentroidY = np.random.uniform(0, ymax)
+            ncX.append(ncentroidX)
+            ncY.append(ncentroidY)
+        else:
+            ncX.append(Xmean)
+            ncY.append(Ymean)
+    
+    # Plot new centroids
+    
+    for i in range(0, k):
+        plt.plot(ncX[i], ncY[i], ccsa[i])
+    
+    plt.show()
+    
+    nCent = [ncX, ncY]
+    global df_out
+    df_out = pd.DataFrame(nCent)
+    return df_out
+    
+# Import data
+
+Xs = [1, 2,   2, 1, 1, 1.5, 6, 5.5, 6, 5, 9]
+Ys = [1, 1.5, 2, 1, 1, 2,   6, 6,   5, 5, 9]
+
+XYTuples = list(zip(Xs, Ys))
+
+plt.scatter(Xs, Ys)
+plt.title("Title")
+plt.xlabel("X values")
+plt.ylabel("Y values")
+
+xmax = max(Xs)
+ymax = max(Ys)
+
+# Initialise random centroid(s)
+
+k = int(input("Enter k (range: 1 - 8):"));
+print("Performing computation with k = " + str(k))
+
+centroid = {}
+
+for i in range(0, k):
+    centroid[i] = (np.random.uniform(0, xmax), np.random.uniform(0, ymax))
+
+Cent_df = pd.DataFrame(centroid)
+print(Cent_df)
+CentroidX = Cent_df.loc[0]
+CentroidY = Cent_df.loc[1]
+
+# Generate array of centroid colours and shape 
+ccsa = ['gx', 'rx', 'cx', 'mx', 'yx', 'kx', 'wx', 'bx']
+dcsa = ['go', 'ro', 'co', 'mo', 'yo', 'ko', 'wo', 'bo']
+
+for i in range(0, k):
+    plt.plot(CentroidX[i], CentroidY[i], ccsa[i])
+
+plt.show()
+
+cdistance(Xs, Ys, Cent_df)
+
+# START LOOP
+
+iterations = int(input("Set the number of iterations:"));
+
+for i in range(0, iterations):
+    Cent_df = df_out
+    cdistance(Xs, Ys, Cent_df)
+    
